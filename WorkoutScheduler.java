@@ -67,24 +67,29 @@ public class WorkoutScheduler {
 
     private void switchToAddTaskView() {
         // Create "Add Task" Panel
-        addTaskPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        addTaskPanel = new JPanel(new GridLayout(5, 2, 10, 10));
         addTaskPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JLabel nameLabel = new JLabel("Task Name:");
         JTextField nameField = new JTextField();
         JLabel descLabel = new JLabel("Description:");
         JTextField descField = new JTextField();
+        JLabel categoryLabel = new JLabel("Category:");
+        String[] categories = {"Strength Training", "Cardio", "Yoga", "Flexibility", "Balance"};
+        JComboBox<String> categoryComboBox = new JComboBox<>(categories);
 
         JButton confirmButton = new JButton("Confirm");
         JButton cancelButton = new JButton("Cancel");
 
-        confirmButton.addActionListener(e -> addTask(nameField, descField));
+        confirmButton.addActionListener(e -> addTask(nameField, descField, categoryComboBox));
         cancelButton.addActionListener(e -> switchToMainView());
 
         addTaskPanel.add(nameLabel);
         addTaskPanel.add(nameField);
         addTaskPanel.add(descLabel);
         addTaskPanel.add(descField);
+        addTaskPanel.add(categoryLabel);
+        addTaskPanel.add(categoryComboBox);
         addTaskPanel.add(new JLabel()); // Empty placeholder
         addTaskPanel.add(new JLabel()); // Empty placeholder
         addTaskPanel.add(confirmButton);
@@ -104,11 +109,13 @@ public class WorkoutScheduler {
         frame.repaint();
     }
 
-    private void addTask(JTextField nameField, JTextField descField) {
+    private void addTask(JTextField nameField, JTextField descField, JComboBox<String> categoryComboBox) {
         String taskName = nameField.getText().trim();
         String taskDesc = descField.getText().trim();
+        String taskCategory = categoryComboBox.getSelectedItem().toString();
+
         if (!taskName.isEmpty()) {
-            String taskFull = taskName + (taskDesc.isEmpty() ? "" : " - " + taskDesc);
+            String taskFull = taskName + (taskDesc.isEmpty() ? "" : " - " + taskDesc) + " (" + taskCategory + ")";
 
             // Add to To-Do List
             JCheckBox taskCheckBox = new JCheckBox(taskFull);
