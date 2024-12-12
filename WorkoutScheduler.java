@@ -12,7 +12,7 @@ public class WorkoutScheduler {
     public WorkoutScheduler() {
         // Initialize JFrame
         frame = new JFrame("Workout Scheduler");
-        frame.setSize(800, 500);
+        frame.setSize(900, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
@@ -67,7 +67,7 @@ public class WorkoutScheduler {
 
     private void switchToAddTaskView() {
         // Create "Add Task" Panel
-        addTaskPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        addTaskPanel = new JPanel(new GridLayout(8, 2, 10, 10));
         addTaskPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JLabel nameLabel = new JLabel("Task Name:");
@@ -78,10 +78,17 @@ public class WorkoutScheduler {
         String[] categories = {"Strength Training", "Cardio", "Yoga", "Flexibility", "Balance"};
         JComboBox<String> categoryComboBox = new JComboBox<>(categories);
 
+        JLabel setsLabel = new JLabel("Sets:");
+        JSpinner setsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1)); // Default: 1, Min: 1, Max: 100
+        JLabel repsLabel = new JLabel("Reps:");
+        JSpinner repsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1)); // Default: 1, Min: 1, Max: 100
+        JLabel timerLabel = new JLabel("Timer (minutes):");
+        JSpinner timerSpinner = new JSpinner(new SpinnerNumberModel(0, 0, 300, 1)); // Default: 0, Min: 0, Max: 300
+
         JButton confirmButton = new JButton("Confirm");
         JButton cancelButton = new JButton("Cancel");
 
-        confirmButton.addActionListener(e -> addTask(nameField, descField, categoryComboBox));
+        confirmButton.addActionListener(e -> addTask(nameField, descField, categoryComboBox, setsSpinner, repsSpinner, timerSpinner));
         cancelButton.addActionListener(e -> switchToMainView());
 
         addTaskPanel.add(nameLabel);
@@ -90,8 +97,12 @@ public class WorkoutScheduler {
         addTaskPanel.add(descField);
         addTaskPanel.add(categoryLabel);
         addTaskPanel.add(categoryComboBox);
-        addTaskPanel.add(new JLabel()); // Empty placeholder
-        addTaskPanel.add(new JLabel()); // Empty placeholder
+        addTaskPanel.add(setsLabel);
+        addTaskPanel.add(setsSpinner);
+        addTaskPanel.add(repsLabel);
+        addTaskPanel.add(repsSpinner);
+        addTaskPanel.add(timerLabel);
+        addTaskPanel.add(timerSpinner);
         addTaskPanel.add(confirmButton);
         addTaskPanel.add(cancelButton);
 
@@ -109,13 +120,22 @@ public class WorkoutScheduler {
         frame.repaint();
     }
 
-    private void addTask(JTextField nameField, JTextField descField, JComboBox<String> categoryComboBox) {
+    private void addTask(JTextField nameField, JTextField descField, JComboBox<String> categoryComboBox, 
+                         JSpinner setsSpinner, JSpinner repsSpinner, JSpinner timerSpinner) {
         String taskName = nameField.getText().trim();
         String taskDesc = descField.getText().trim();
         String taskCategory = categoryComboBox.getSelectedItem().toString();
+        int sets = (int) setsSpinner.getValue();
+        int reps = (int) repsSpinner.getValue();
+        int timer = (int) timerSpinner.getValue();
 
         if (!taskName.isEmpty()) {
-            String taskFull = taskName + (taskDesc.isEmpty() ? "" : " - " + taskDesc) + " (" + taskCategory + ")";
+            String taskFull = taskName + 
+                              (taskDesc.isEmpty() ? "" : " - " + taskDesc) + 
+                              " (" + taskCategory + "), " +
+                              "Sets: " + sets + ", " +
+                              "Reps: " + reps + ", " +
+                              "Timer: " + timer + " mins";
 
             // Add to To-Do List
             JCheckBox taskCheckBox = new JCheckBox(taskFull);
@@ -131,48 +151,6 @@ public class WorkoutScheduler {
             switchToMainView(); // Return to main view
         } else {
             JOptionPane.showMessageDialog(frame, "Task name cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void editSelectedTask() {
-        ArrayList<JCheckBox> selectedTasks = getSelectedTasks();
-        if (selectedTasks.size() == 1) {
-            JCheckBox selectedTask = selectedTasks.get(0);
-            String[] parts = selectedTask.getText().split(" - ", 2);
-            String taskName = parts[0];
-            String taskDesc = parts.length > 1 ? parts[1] : "";
-
-            JTextField nameField = new JTextField(taskName);
-            JTextField descField = new JTextField(taskDesc);
-
-            int result = JOptionPane.showConfirmDialog(
-                frame,
-                new Object[]{"Task Name:", nameField, "Description:", descField},
-                "Edit Task",
-                JOptionPane.OK_CANCEL_OPTION
-            );
-
-            if (result == JOptionPane.OK_OPTION) {
-                String newTaskName = nameField.getText().trim();
-                String newTaskDesc = descField.getText().trim();
-                if (!newTaskName.isEmpty()) {
-                    String updatedTask = newTaskName + (newTaskDesc.isEmpty() ? "" : " - " + newTaskDesc);
-                    selectedTask.setText(updatedTask);
-
-                    // Update Month's Schedule
-                    int index = monthScheduleListModel.indexOf(selectedTask.getText());
-                    if (index >= 0) {
-                        monthScheduleListModel.set(index, updatedTask);
-                    }
-
-                    todoPanelList.revalidate();
-                    todoPanelList.repaint();
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Task name cannot be empty!", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(frame, "Please select one task to edit.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
